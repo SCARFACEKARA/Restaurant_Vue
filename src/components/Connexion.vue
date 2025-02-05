@@ -1,29 +1,47 @@
 <template>
-    <h1>Bonjour Anthony</h1>
+    <div>
+        <h1>Bonjour Anthony</h1>
+        <h2>{{ this.email }}</h2>
+        <form @submit.prevent="handleSubmit" id="inscription">
+            <label for="email">Email :</label>
+            <input type="email" id="email" v-model="email" required>
+
+            <label for="password">Mot de passe :</label>
+            <input type="password" id="password" v-model="password" required>
+
+            <button type="submit">Se connecter</button>
+        </form>
+    </div>
 </template>
 
 <script>
-import { getData, postData ,deleteData, putData} from '../utils/api';
+import { putData } from '../utils/api';
 
 export default {
-    async mounted() {
-        await this.test();
+    data() {
+        return {
+            email: '',
+            password: '',
+        };
     },
     methods: {
-        async test() {
+        async handleSubmit() {
             try {
-                // const data = await fetchData("users/all");
-                const json = {
-                    "email":"adala@gmail.com",
-                    "mdp":"adala",
-                    "role":"CLIENT"
+                const payload = {
+                    email: this.email,
+                    mdp: this.password,
+                    role: "CLIENT"
                 };
-                const data = await putData("users/edit/2",json);
-                console.log(data);
+                const response = await putData("users/edit/2", payload);
+                console.log("Réponse du serveur :", response);
             } catch (error) {
-                console.error("Erreur lors de la récupération des données :", error);
+                console.error("Erreur lors de la modification des données :", error);
             }
         }
+    },
+    async mounted() {
+        console.log("Composant monté !");
     }
 };
 </script>
+
