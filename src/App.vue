@@ -1,10 +1,10 @@
 <script setup>
-import Connexion from './components/Connexion.vue'
 </script>
 
 <template>
-  <Connexion/>
+  <router-view></router-view>
 </template>
+
 
 <style scoped>
 .logo {
