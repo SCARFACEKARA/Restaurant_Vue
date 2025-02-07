@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="container">
         <h1>PAGE DE CONNEXION</h1>
         <form @submit.prevent="handleSubmit" id="inscription">
             <label for="email">Email :</label>
@@ -20,7 +20,6 @@
         <p v-if="errorMessage" style="color: red;">{{ errorMessage }}</p>
     </div>
 </template>
-
 <script>
 import { postData } from '../utils/api';
 
@@ -70,3 +69,86 @@ export default {
     }
 };
 </script>
+
+<style>
+/* Global Container */
+.container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Title */
+h1 {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* Form */
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Input Fields */
+input[type="email"],
+input[type="password"] {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Button Styles */
+button {
+    background-color: #4CAF50;
+    color: white;
+    font-size: 16px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+button:disabled {
+    background-color: #ddd;
+}
+
+button:hover:not(:disabled) {
+    background-color: #45a049;
+}
+
+/* Error Message */
+p {
+    text-align: center;
+    font-size: 14px;
+    color: red;
+}
+
+/* Button for Registration */
+button:last-of-type {
+    background-color: #28a745;
+    color: white;
+    margin-top: 15px;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+}
+
+button:last-of-type:hover {
+    background-color: #0056b3;
+}
+
+</style>

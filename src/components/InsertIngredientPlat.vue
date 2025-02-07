@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import { postData, getData } from '../utils/api'; // Centralisation des appels API
+import { postData, getData } from '../utils/api';
 
 export default {
   name: "InsertIngredientPlat",
@@ -56,7 +56,7 @@ export default {
   methods: {
     async loadPlats() {
       try {
-        this.plats = await getData("admin/plats/all");
+        this.plats = await getData("admin/plats/all-detailed");
       } catch (error) {
         console.error("Erreur lors de la récupération des plats :", error);
       }
@@ -69,14 +69,12 @@ export default {
       }
     },
     async associerIngredientPlat() {
-      // Vérifier si un plat est sélectionné
       if (!this.selectedPlat) {
         this.message = "Veuillez sélectionner un plat.";
         this.success = false;
         return;
       }
       
-      // Vérifier si des ingrédients sont sélectionnés
       if (this.selectedIngredients.length === 0) {
         this.message = "Veuillez sélectionner au moins un ingrédient.";
         this.success = false;
@@ -84,28 +82,83 @@ export default {
       }
 
       try {
-        // Préparer les données à envoyer au serveur
         const payloads = this.selectedIngredients.map(idIngredient => ({
           idPlat: this.selectedPlat,
           idIngredient
         }));
 
-        // Envoyer chaque association
+        // Journalisation des données envoyées
+        console.log("Envoi des associations au backend :", payloads);
+
         const results = await Promise.all(
-          payloads.map(payload => postData("admin/ingredient-plats/create", payload))
+          payloads.map(async payload => {
+            try {
+              const response = await postData("admin/ingredient-plats/create", payload);
+              return { status: 'success', data: response };
+            } catch (error) {
+              // Journalisation complète de l'erreur
+              console.error("Erreur backend pour l'association", payload, ":");
+              console.error("Status:", error.response?.status);
+              console.error("Data:", error.response?.data);
+              console.error("Headers:", error.response?.headers);
+              return { 
+                status: 'error', 
+                error: error.response?.data || error.message,
+                payload 
+              };
+            }
+          })
         );
 
-        // Message de succès
-        this.message = "Associations ajoutées avec succès !";
-        this.success = true;
+        // Analyse des résultats
+        const successful = results.filter(r => r.status === 'success');
+        const failed = results.filter(r => r.status === 'error');
 
-        // Réinitialisation des sélections
-        this.selectedPlat = "";
-        this.selectedIngredients = [];
+        // Construction du message
+        let messageParts = [];
+        if (successful.length > 0) {
+          messageParts.push(`${successful.length} association(s) réussie(s) !`);
+        }
+        if (failed.length > 0) {
+          failed.forEach((f, index) => {
+            let errorMsg = `Erreur pour l'ingrédient ${f.payload.idIngredient}: `;
+            
+            if (f.error?.error) {
+              // Gestion des erreurs connues du backend
+              switch (f.error.error) {
+                case 'This ingredient is already associated with this plat':
+                  errorMsg += "Cet ingrédient est déjà associé à ce plat";
+                  break;
+                case 'Plat not found':
+                  errorMsg += "Plat introuvable";
+                  break;
+                case 'Ingredient not found':
+                  errorMsg += "Ingrédient introuvable";
+                  break;
+                default:
+                  errorMsg += f.error.error;
+              }
+            } else {
+              errorMsg += "Erreur inconnue";
+            }
+            
+            messageParts.push(`${index + 1}. ${errorMsg}`);
+          });
+        }
+
+        this.message = messageParts.join('\n');
+        this.success = failed.length === 0;
+
+        // Réinitialisation seulement si tout est réussi
+        if (failed.length === 0) {
+          this.selectedPlat = "";
+          this.selectedIngredients = [];
+        }
+
       } catch (error) {
-        // Gestion des erreurs
-        console.error("Erreur lors de l'association :", error);
-        this.message = "Une erreur est survenue lors de l'association.";
+        // Erreur globale inattendue
+        console.error("Erreur globale inattendue :", error);
+        this.message = "Une erreur critique est survenue lors de l'opération";
         this.success = false;
       }
     }
@@ -119,52 +172,85 @@ export default {
 
 <style scoped>
 .container {
-    max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    background: white;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
 }
 
-h1 {
-    font-size: 1.8rem;
-    margin-bottom: 20px;
+.form {
+  margin-bottom: 40px;
 }
 
 .input-group {
-    margin-bottom: 15px;
-    text-align: left;
+  margin-bottom: 15px;
 }
 
-label {
-    font-size: 1rem;
-    color: #333;
-    display: block;
-    margin-bottom: 5px;
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
 }
 
-input {
-    width: 100%;
-    padding: 10px;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+.input-group input,
+.input-group select {
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
 }
 
 .submit-button {
-    width: 100%;
-    padding: 10px;
-    font-size: 1.1rem;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  cursor: pointer;
 }
 
 .submit-button:hover {
-    background-color: #218838;
+  background-color: #218838;
+}
+
+/* Style pour la liste des ingrédients */
+.ingredient-list {
+  margin-top: 40px;
+}
+
+.ingredient-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.ingredient-list th,
+.ingredient-list td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.ingredient-list th {
+  background-color: #f1f1f1;
+}
+
+.stock-list {
+  margin-top: 40px;
+}
+
+.filters {
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table th {
+  background-color: #f8f9fa;
 }
 </style>
