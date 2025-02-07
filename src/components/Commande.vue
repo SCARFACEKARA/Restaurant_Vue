@@ -24,10 +24,11 @@
               :class="{ selected: selectedCommandeId === commande.id }"
             >
               <td>{{ commande.id }}</td>
-              <td>{{ commande.clientEmail }}</td>
+              <td>{{ commande.client['email'] }}</td>
               <td>{{ commande.dateCommande }}</td>
               <td>{{ commande.montantTotal }} €</td>
               <td>
+                <!-- Sélecteur pour modifier le statut de la commande -->
                 <select v-model="commande.status" @change="updateCommandeStatus(commande)">
                   <option value="en cours">En cours</option>
                   <option value="en attente">En attente</option>
@@ -36,6 +37,7 @@
                 </select>
               </td>
               <td>
+                <!-- Bouton pour supprimer une commande -->
                 <button @click.stop="deleteCommande(commande.id)">Supprimer</button>
               </td>
             </tr>
@@ -44,28 +46,21 @@
       </div>
   
       <!-- Détails de la commande sélectionnée -->
-      <div v-if="selectedCommandeId" class="commande-details">
-        <h2>Détails de la Commande #{{ selectedCommandeId }}</h2>
+      <div v-if="selectedCommande" class="commande-details">
+        <h2>Détails de la Commande #{{ selectedCommande.id }}</h2>
         <table>
           <thead>
             <tr>
               <th>Plat</th>
               <th>Statut</th>
-              <th>Actions</th>
+              <th>Temps de cuisson</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="detail in detailsCommande" :key="detail.id">
-              <td>{{ detail.nomPlat }}</td>
-              <td>
-                <select v-model="detail.status" @change="updateDetailStatus(detail)">
-                  <option value="fini">Fini</option>
-                  <option value="recuperer">Récupérer</option>
-                </select>
-              </td>
-              <td>
-                <button @click.stop="deleteDetail(detail.id)">Supprimer</button>
-              </td>
+            <tr v-for="detail in selectedCommande.details" :key="detail.id">
+              <td>{{ detail.plat.nomPlat }}</td>
+              <td>{{ detail.status }}</td>
+              <td>{{ formatTime(detail.plat.tempsCuisson) }}</td>
             </tr>
           </tbody>
         </table>
@@ -86,21 +81,18 @@
     data() {
       return {
         commandes: [], // Liste des commandes
-        detailsCommande: [], // Détails de la commande sélectionnée
         selectedCommandeId: null, // ID de la commande sélectionnée
+        selectedCommande: null, // Détails de la commande sélectionnée
         message: "", // Message d'erreur ou de succès
-        success: false, // Statut du message
+        success: false, // Statut du message (succès ou erreur)
       };
     },
     methods: {
-      // Charger la liste des commandes
+      // Charger la liste des commandes depuis l'API
       async loadCommandes() {
         try {
           const data = await getData("admin/commandes/all");
-          this.commandes = data.map(commande => ({
-            ...commande,
-            clientEmail: commande.client.email, // Récupérer l'email du client
-          }));
+          this.commandes = data;
         } catch (error) {
           console.error("Erreur lors de la récupération des commandes :", error);
           this.message = "Erreur lors du chargement des commandes.";
@@ -108,62 +100,24 @@
         }
       },
   
-      // Charger les détails d'une commande
-      async loadDetailsCommande(commandeId) {
-        try {
-          const data = await getData(`admin/commandes/${commandeId}/details`);
-          this.detailsCommande = data.map(detail => ({
-            ...detail,
-            nomPlat: detail.plat.nomPlat, // Récupérer le nom du plat
-          }));
-        } catch (error) {
-          console.error("Erreur lors de la récupération des détails :", error);
-          this.message = "Erreur lors du chargement des détails de la commande.";
-          this.success = false;
-        }
-      },
-  
-      // Sélectionner une commande
-      async selectCommande(commandeId) {
+      // Sélectionner une commande et afficher ses détails
+      selectCommande(commandeId) {
         this.selectedCommandeId = commandeId;
-        await this.loadDetailsCommande(commandeId);
+        this.selectedCommande = this.commandes.find(c => c.id === commandeId) || null;
       },
   
-      // Mettre à jour le statut d'une commande
-      async updateCommandeStatus(commande) {
-        try {
-          await postData(`admin/commandes/${commande.id}/update-status`, {
-            status: commande.status,
-          });
-          this.message = "Statut de la commande mis à jour avec succès.";
-          this.success = true;
-        } catch (error) {
-          console.error("Erreur lors de la mise à jour du statut :", error);
-          this.message = "Erreur lors de la mise à jour du statut.";
-          this.success = false;
-        }
+      // Formater le temps de cuisson (exemple : convertir HH:MM:SS en HHh MMmin SSs)
+      formatTime(time) {
+        if (!time) return "-";
+        const [hours, minutes, seconds] = time.split(":");
+        return `${hours}h ${minutes}min ${seconds}s`;
       },
   
-      // Mettre à jour le statut d'un détail de commande
-      async updateDetailStatus(detail) {
-        try {
-          await postData(`admin/details-commande/${detail.id}/update-status`, {
-            status: detail.status,
-          });
-          this.message = "Statut du détail mis à jour avec succès.";
-          this.success = true;
-        } catch (error) {
-          console.error("Erreur lors de la mise à jour du statut :", error);
-          this.message = "Erreur lors de la mise à jour du statut.";
-          this.success = false;
-        }
-      },
-  
-      // Supprimer une commande
+      // Supprimer une commande après confirmation
       async deleteCommande(commandeId) {
         if (confirm("Êtes-vous sûr de vouloir supprimer cette commande ?")) {
           try {
-            await deleteData(`admin/commandes/${commandeId}/delete`);
+            await deleteData(`admin/commandes/delete/${commandeId}`);
             this.message = "Commande supprimée avec succès.";
             this.success = true;
             this.loadCommandes(); // Recharger la liste des commandes
@@ -174,25 +128,9 @@
           }
         }
       },
-  
-      // Supprimer un détail de commande
-      async deleteDetail(detailId) {
-        if (confirm("Êtes-vous sûr de vouloir supprimer ce détail ?")) {
-          try {
-            await deleteData(`admin/details-commande/${detailId}/delete`);
-            this.message = "Détail supprimé avec succès.";
-            this.success = true;
-            this.loadDetailsCommande(this.selectedCommandeId); // Recharger les détails
-          } catch (error) {
-            console.error("Erreur lors de la suppression du détail :", error);
-            this.message = "Erreur lors de la suppression du détail.";
-            this.success = false;
-          }
-        }
-      },
     },
     mounted() {
-      this.loadCommandes();
+      this.loadCommandes(); // Charger les commandes au montage du composant
     },
   };
   </script>

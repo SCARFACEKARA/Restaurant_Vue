@@ -134,6 +134,12 @@ export default {
         console.log("Stock ajouté :", response);
         alert("Stock enregistré avec succès !");
         this.loadStocks(); // Recharger la liste des stocks après l'ajout
+        
+        // Réinitialisation du formulaire après l'ajout
+        this.idIngredient = '';
+        this.quantite = 1;
+        this.dateStock = new Date().toISOString().split('T')[0];
+        this.status = 'entree';
       } catch (error) {
         console.error("Erreur lors de l'ajout du stock :", error);
         alert("Une erreur est survenue, veuillez réessayer.");
