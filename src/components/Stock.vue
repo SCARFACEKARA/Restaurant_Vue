@@ -109,8 +109,8 @@ export default {
       status: 'entree', // Type d'opération par défaut
       stockIngredient: [], // Liste des ingrédients récupérés depuis l'API
       stocks: [], // Liste des mouvements de stock récupérés depuis l'API
-      filterStatus: 'all' ,// Filtre actif pour l'affichage des stocks
-      ingredients:[]
+      filterStatus: 'all', // Filtre actif pour l'affichage des stocks
+      ingredients: [] // Liste des ingrédients disponibles
     };
   },
   computed: {
@@ -129,7 +129,8 @@ export default {
           status: this.status
         };
         
-        const response = await postData('admin/stocks/create', payload); // Envoi des données à l'API
+        // Envoi des données à l'API
+        const response = await postData('admin/stocks/create', payload);
         console.log("Stock ajouté :", response);
         alert("Stock enregistré avec succès !");
         this.loadStocks(); // Recharger la liste des stocks après l'ajout
@@ -140,7 +141,8 @@ export default {
     },
     async loadIngredients() {
       try {
-        this.stockIngredient = await getData('admin/stocks/all'); // Chargement des ingrédients
+        // Charger les ingrédients et les stocks depuis l'API
+        this.stockIngredient = await getData('admin/stocks/all');
         this.ingredients = await getData('admin/ingredients/all');
       } catch (error) {
         console.error("Erreur lors du chargement des ingrédients :", error);
@@ -148,15 +150,17 @@ export default {
     },
     async loadStocks() {
       try {
-        this.stocks = await getData('admin/stocks/all_basic'); // Chargement des mouvements de stock
+        // Charger les mouvements de stock depuis l'API
+        this.stocks = await getData('admin/stocks/all_basic');
       } catch (error) {
         console.error("Erreur lors du chargement des stocks :", error);
       }
     }
   },
   mounted() {
-    this.loadIngredients(); // Charger les ingrédients au montage du composant
-    this.loadStocks(); // Charger les stocks au montage du composant
+    // Charger les données au montage du composant
+    this.loadIngredients();
+    this.loadStocks();
   }
 };
 </script>

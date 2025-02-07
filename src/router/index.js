@@ -7,6 +7,7 @@ import insertion from '../components/insertion.vue';
 import InsertPlat from '../components/InsertPlat.vue';
 import InsertIngredient from '../components/InsertIngredient.vue';
 import InsertIngredientPlat from '../components/InsertIngredientPlat.vue';
+import Commande from '../components/Commande.vue';
 
 const routes = [
     {
@@ -23,37 +24,43 @@ const routes = [
         path: '/admin',
         name: 'AdminPage',
         component: AdminPage,
-        meta: { requiresAuth: true } // Ajout d'une meta-information pour protéger la route
+    
     },
     {
         path: '/stock',
         name: 'Stock',
         component: Stock,
-        meta: { requiresAuth: true }
+        
     },
     {
         path: '/insertion',
         name: 'insertion',
         component: insertion,
-        meta: { requiresAuth: true }
+        
     },
     {
         path: '/InsertPlat',
         name: 'InsertPlat',
         component: InsertPlat,
-        meta: { requiresAuth: true }
+        
     },
     {
         path: '/InsertIngredient',
         name: 'InsertIngredient',
         component: InsertIngredient,
-        meta: { requiresAuth: true }
+        
     },
     {
         path: '/InsertIngredientPlat',
         name: 'InsertIngredientPlat',
         component: InsertIngredientPlat,
-        meta: { requiresAuth: true }
+        
+    },
+    {
+        path: '/Commande',
+        name: 'Commande',
+        component: Commande,
+        
     },
 ];
 

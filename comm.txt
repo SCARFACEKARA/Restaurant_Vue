@@ -1,0 +1,162 @@
+<template>
+    <div class="container">
+      <h1>COMMANDES</h1>
+  
+      <!-- Liste des commandes -->
+      <div class="commandes-list">
+        <h2>Liste des Commandes</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Date</th>
+              <th>Montant Total</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="commande in commandes"
+              :key="commande.id"
+              @click="selectCommande(commande.id)"
+              :class="{ selected: selectedCommandeId === commande.id }"
+            >
+              <td>{{ commande.clientEmail }}</td>
+              <td>{{ commande.dateCommande }}</td>
+              <td>{{ commande.montantTotal }} €</td>
+              <td>{{ commande.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  
+      <!-- Détails de la commande sélectionnée -->
+      <div v-if="selectedCommandeId" class="commande-details">
+        <h2>Détails de la Commande #{{ selectedCommandeId }}</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Plat</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="detail in detailsCommande" :key="detail.id">
+              <td>{{ detail.nomPlat }}</td>
+              <td>{{ detail.status }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+  
+      <!-- Message d'erreur ou de succès -->
+      <p v-if="message" :class="{'success-message': success, 'error-message': !success}">
+        {{ message }}
+      </p>
+    </div>
+  </template>
+  
+  <script>
+  import { getData } from '../utils/api';
+  
+  export default {
+    name: "CommandesPage",
+    data() {
+      return {
+        commandes: [], // Liste des commandes
+        detailsCommande: [], // Détails de la commande sélectionnée
+        selectedCommandeId: null, // ID de la commande sélectionnée
+        message: "", // Message d'erreur ou de succès
+        success: false, // Statut du message
+      };
+    },
+    methods: {
+      // Charger la liste des commandes
+      async loadCommandes() {
+        try {
+          const data = await getData("admin/commandes/all");
+          this.commandes = data.map(commande => ({
+            ...commande,
+            clientEmail: commande.client.email, // Récupérer l'email du client
+          }));
+        } catch (error) {
+          console.error("Erreur lors de la récupération des commandes :", error);
+          this.message = "Erreur lors du chargement des commandes.";
+          this.success = false;
+        }
+      },
+  
+      // Charger les détails d'une commande
+      async loadDetailsCommande(commandeId) {
+        try {
+          const data = await getData(`admin/commandes/${commandeId}/details`);
+          this.detailsCommande = data.map(detail => ({
+            ...detail,
+            nomPlat: detail.plat.nomPlat, // Récupérer le nom du plat
+          }));
+        } catch (error) {
+          console.error("Erreur lors de la récupération des détails :", error);
+          this.message = "Erreur lors du chargement des détails de la commande.";
+          this.success = false;
+        }
+      },
+  
+      // Sélectionner une commande
+      async selectCommande(commandeId) {
+        this.selectedCommandeId = commandeId;
+        await this.loadDetailsCommande(commandeId);
+      },
+    },
+    mounted() {
+      this.loadCommandes();
+    },
+  };
+  </script>
+  
+  <style scoped>
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .commandes-list,
+  .commande-details {
+    margin-bottom: 40px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  
+  th,
+  td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  th {
+    background-color: #f8f9fa;
+  }
+  
+  tr.selected {
+    background-color: #e9f5ff;
+    cursor: pointer;
+  }
+  
+  tr:hover {
+    background-color: #f1f1f1;
+    cursor: pointer;
+  }
+  
+  .success-message {
+    color: green;
+  }
+  
+  .error-message {
+    color: red;
+  }
+  </style>

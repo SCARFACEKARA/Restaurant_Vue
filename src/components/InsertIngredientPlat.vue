@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h1>Insertion Ingrédient-Plat</h1>
+    <h1>INSERTION INGREDIENT PLAT</h1>
     <form @submit.prevent="associerIngredientPlat" class="form">
       
       <!-- Sélection du plat -->
@@ -45,15 +45,16 @@ export default {
   name: "InsertIngredientPlat",
   data() {
     return {
-      plats: [],
-      ingredients: [],
-      selectedPlat: "",
-      selectedIngredients: [],
-      message: "",
-      success: false
+      plats: [], // Stocke la liste des plats
+      ingredients: [], // Stocke la liste des ingrédients
+      selectedPlat: "", // Stocke l'ID du plat sélectionné
+      selectedIngredients: [], // Stocke les IDs des ingrédients sélectionnés
+      message: "", // Stocke le message d'affichage (erreur ou succès)
+      success: false // Indique si l'opération est un succès
     };
   },
   methods: {
+    // Récupère la liste des plats depuis l'API
     async loadPlats() {
       try {
         this.plats = await getData("admin/plats/all-detailed");
@@ -61,6 +62,7 @@ export default {
         console.error("Erreur lors de la récupération des plats :", error);
       }
     },
+    // Récupère la liste des ingrédients depuis l'API
     async loadIngredients() {
       try {
         this.ingredients = await getData("admin/ingredients/all");
@@ -68,104 +70,72 @@ export default {
         console.error("Erreur lors de la récupération des ingrédients :", error);
       }
     },
+    // Associe les ingrédients au plat sélectionné
     async associerIngredientPlat() {
-      if (!this.selectedPlat) {
+      if (!this.selectedPlat) { // Vérifie si un plat a été sélectionné
         this.message = "Veuillez sélectionner un plat.";
         this.success = false;
         return;
       }
       
-      if (this.selectedIngredients.length === 0) {
+      if (this.selectedIngredients.length === 0) { // Vérifie si au moins un ingrédient a été sélectionné
         this.message = "Veuillez sélectionner au moins un ingrédient.";
         this.success = false;
         return;
       }
 
       try {
+        // Crée un tableau d'objets représentant les associations plat-ingrédient
         const payloads = this.selectedIngredients.map(idIngredient => ({
           idPlat: this.selectedPlat,
           idIngredient
         }));
 
-        // Journalisation des données envoyées
-        console.log("Envoi des associations au backend :", payloads);
-
-        const results = await Promise.all(
-          payloads.map(async payload => {
-            try {
-              const response = await postData("admin/ingredient-plats/create", payload);
-              return { status: 'success', data: response };
-            } catch (error) {
-              // Journalisation complète de l'erreur
-              console.error("Erreur backend pour l'association", payload, ":");
-              console.error("Status:", error.response?.status);
-              console.error("Data:", error.response?.data);
-              console.error("Headers:", error.response?.headers);
-              return { 
-                status: 'error', 
-                error: error.response?.data || error.message,
-                payload 
-              };
-            }
-          })
+        // Exécute toutes les requêtes en parallèle
+        const results = await Promise.allSettled(
+          payloads.map(payload => postData("admin/ingredient-plats/create", payload))
         );
 
-        // Analyse des résultats
-        const successful = results.filter(r => r.status === 'success');
-        const failed = results.filter(r => r.status === 'error');
+        let successCount = 0;
+        let errorMessages = [];
 
-        // Construction du message
-        let messageParts = [];
-        if (successful.length > 0) {
-          messageParts.push(`${successful.length} association(s) réussie(s) !`);
-        }
-        if (failed.length > 0) {
-          failed.forEach((f, index) => {
-            let errorMsg = `Erreur pour l'ingrédient ${f.payload.idIngredient}: `;
-            
-            if (f.error?.error) {
-              // Gestion des erreurs connues du backend
-              switch (f.error.error) {
-                case 'This ingredient is already associated with this plat':
-                  errorMsg += "Cet ingrédient est déjà associé à ce plat";
-                  break;
-                case 'Plat not found':
-                  errorMsg += "Plat introuvable";
-                  break;
-                case 'Ingredient not found':
-                  errorMsg += "Ingrédient introuvable";
-                  break;
-                default:
-                  errorMsg += f.error.error;
-              }
-            } else {
-              errorMsg += "Erreur inconnue";
-            }
-            
-            messageParts.push(`${index + 1}. ${errorMsg}`);
-          });
+        // Analyse les résultats des requêtes
+        results.forEach((result) => {
+          if (result.status === "fulfilled") {
+            successCount++; // Compte le nombre de succès
+          } else {
+            const errorData = result.reason.response?.data;
+            const errorMessage = errorData?.error || "Erreur inconnue";
+            errorMessages.push(`• ${errorMessage}`); // Stocke les messages d'erreur
+          }
+        });
+
+        if (successCount > 0) {
+          this.message = `${successCount} association(s) réussie(s) !`;
+          this.success = true;
         }
 
-        this.message = messageParts.join('\n');
-        this.success = failed.length === 0;
+        if (errorMessages.length > 0) {
+          this.message += `\n\n${errorMessages.join("\n")}`;
+          this.success = false;
+        }
 
-        // Réinitialisation seulement si tout est réussi
-        if (failed.length === 0) {
+        // Réinitialise les sélections si tout a réussi
+        if (successCount === this.selectedIngredients.length) {
           this.selectedPlat = "";
           this.selectedIngredients = [];
         }
 
       } catch (error) {
-        // Erreur globale inattendue
-        console.error("Erreur globale inattendue :", error);
-        this.message = "Une erreur critique est survenue lors de l'opération";
+        console.error("Erreur critique :", error);
+        this.message = "Une erreur critique est survenue lors de l'opération.";
         this.success = false;
       }
     }
   },
   mounted() {
-    this.loadPlats();
-    this.loadIngredients();
+    this.loadPlats(); // Charge la liste des plats au montage du composant
+    this.loadIngredients(); // Charge la liste des ingrédients au montage du composant
   }
 };
 </script>
@@ -209,48 +179,14 @@ export default {
   background-color: #218838;
 }
 
-/* Style pour la liste des ingrédients */
-.ingredient-list {
-  margin-top: 40px;
+/* Style pour les messages */
+.success-message {
+  color: green;
+  font-weight: bold;
 }
 
-.ingredient-list table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.ingredient-list th,
-.ingredient-list td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: left;
-}
-
-.ingredient-list th {
-  background-color: #f1f1f1;
-}
-
-.stock-list {
-  margin-top: 40px;
-}
-
-.filters {
-  margin-bottom: 20px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-table th,
-table td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  text-align: left;
-}
-
-table th {
-  background-color: #f8f9fa;
+.error-message {
+  color: red;
+  font-weight: bold;
 }
 </style>
