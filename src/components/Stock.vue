@@ -9,6 +9,7 @@
       <div class="input-group">
         <label for="idIngredient">Ingrédient :</label>
         <select id="idIngredient" v-model="idIngredient" required>
+          <option value="">choisir ingrédient</option>
           <option v-for="ingredient in ingredients" :key="ingredient.id" :value="ingredient.id">
             {{ ingredient.nomIngredient }}
           </option>

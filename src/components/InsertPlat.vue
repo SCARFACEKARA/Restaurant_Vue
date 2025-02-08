@@ -1,31 +1,27 @@
 <template>
   <div class="insert-container">
-    <!-- Titre de la page -->
-    <h1>INSERTION D'UN PLAT</h1>
+    <div class="insert-card">
+      <h1>INSERTION D'UN PLAT</h1>
 
-    <!-- Formulaire d'insertion avec gestion de l'événement submit -->
-    <form @submit.prevent="handleSubmit" class="insert-form">
-      <!-- Champ de saisie pour le nom du plat -->
-      <div class="input-group">
-        <label for="nomPlat">Nom du plat :</label>
-        <input type="text" id="nomPlat" v-model="nomPlat" required>
-      </div>
+      <form @submit.prevent="handleSubmit" class="insert-form">
+        <div class="input-group">
+          <label for="nomPlat">Nom du plat :</label>
+          <input type="text" id="nomPlat" v-model="nomPlat" required placeholder="Entrez le nom du plat">
+        </div>
 
-      <!-- Champ de saisie pour le prix unitaire du plat -->
-      <div class="input-group">
-        <label for="prixUnitaire">Prix (Ar) :</label>
-        <input type="number" id="prixUnitaire" v-model="prixUnitaire" required>
-      </div>
+        <div class="input-group">
+          <label for="prixUnitaire">Prix (Ar) :</label>
+          <input type="number" id="prixUnitaire" v-model="prixUnitaire" required placeholder="Entrez le prix">
+        </div>
 
-      <!-- Champ de saisie pour le temps de cuisson -->
-      <div class="input-group">
-        <label for="tempsCuisson">Temps de cuisson :</label>
-        <input type="time" id="tempsCuisson" v-model="tempsCuisson" required>
-      </div>
+        <div class="input-group">
+          <label for="tempsCuisson">Temps de cuisson :</label>
+          <input type="time" id="tempsCuisson" v-model="tempsCuisson" required>
+        </div>
 
-      <!-- Bouton pour soumettre le formulaire -->
-      <button type="submit" class="btn-submit">Insérer</button>
-    </form>
+        <button type="submit" class="btn-submit">Insérer</button>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -35,7 +31,6 @@ import { postData } from '../utils/api';
 export default {
   data() {
     return {
-      // Variables liées aux champs du formulaire
       nomPlat: '',
       prixUnitaire: '',
       tempsCuisson: ''
@@ -44,23 +39,19 @@ export default {
   methods: {
     async handleSubmit() {
       try {
-        // Création de l'objet à envoyer à l'API
         const payload = {
           nomPlat: this.nomPlat,
           prixUnitaire: this.prixUnitaire,
           tempsCuisson: this.tempsCuisson
         };
-
-        // Envoi des données à l'API
+        
         const response = await postData("admin/plats/create", payload);
         console.log("Réponse du serveur :", response);
 
-        // Réinitialisation des champs après une insertion réussie
         this.nomPlat = '';
         this.prixUnitaire = '';
         this.tempsCuisson = '';
 
-        // Message de confirmation
         alert("Plat inséré avec succès !");
       } catch (error) {
         console.error("Erreur lors de l'insertion des données :", error);
@@ -72,66 +63,80 @@ export default {
 </script>
 
 <style scoped>
-/* Conteneur principal du formulaire */
 .insert-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #4b6cb7, #182848);
+  font-family: Arial, sans-serif;
+}
+
+.insert-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 90%;
   max-width: 400px;
-  margin: 50px auto;
-  padding: 20px;
-  background-color: #f8f8f8;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-/* Style du titre */
 h1 {
-  font-size: 1.8rem;
+  font-size: 24px;
   color: #333;
   margin-bottom: 20px;
+  font-weight: bold;
 }
 
-/* Style du formulaire */
 .insert-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
 }
 
-/* Conteneur des champs de saisie */
 .input-group {
   text-align: left;
 }
 
-/* Style des labels */
-.input-group label {
-  font-size: 1rem;
+label {
+  display: block;
+  font-size: 14px;
   color: #555;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
 
-/* Style des champs de saisie */
-.input-group input {
+input[type="text"],
+input[type="number"],
+input[type="time"] {
   width: 100%;
   padding: 10px;
-  font-size: 1rem;
+  font-size: 16px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background: #f9f9f9;
+  outline: none;
+  transition: border-color 0.3s;
 }
 
-/* Bouton de soumission */
+input:focus {
+  border-color: #4b6cb7;
+}
+
 .btn-submit {
-  background-color: #28a745;
+  background-color: #4b6cb7;
   color: white;
-  padding: 10px;
+  padding: 12px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 16px;
+  font-weight: bold;
   transition: background-color 0.3s;
 }
 
-/* Effet au survol du bouton */
 .btn-submit:hover {
-  background-color: #218838;
+  background-color: #3b5998;
 }
 </style>

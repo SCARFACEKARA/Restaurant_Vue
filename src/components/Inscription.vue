@@ -1,63 +1,61 @@
 <template>
-  <!-- Conteneur principal de la page d'inscription -->
-  <div class="inscription-container">
-    <h1>PAGE D'INSCRIPTION</h1>
+  <div class="insert-container">
+    <div class="insert-card">
+      <h1>INSERTION D'UN PLAT</h1>
 
-    <!-- Formulaire d'inscription -->
-    <form @submit.prevent="handleSubmit" class="inscription-form">
-      
-      <!-- Champ pour l'email -->
-      <div class="input-group">
-        <label for="email">Email :</label>
-        <input type="email" id="email" v-model="email" required>
-      </div>
+      <form @submit.prevent="handleSubmit" class="insert-form">
+        <div class="input-group">
+          <label for="nomPlat">Nom du plat :</label>
+          <input type="text" id="nomPlat" v-model="nomPlat" required>
+        </div>
 
-      <!-- Champ pour le mot de passe -->
-      <div class="input-group">
-        <label for="password">Mot de passe :</label>
-        <input type="password" id="password" v-model="password" required>
-      </div>
+        <div class="input-group">
+          <label for="prixUnitaire">Prix (Ar) :</label>
+          <input type="number" id="prixUnitaire" v-model="prixUnitaire" required>
+        </div>
 
-      <!-- Bouton de soumission -->
-      <button type="submit" class="btn-submit">S'inscrire</button>
-    </form>
+        <div class="input-group">
+          <label for="tempsCuisson">Temps de cuisson :</label>
+          <input type="time" id="tempsCuisson" v-model="tempsCuisson" required>
+        </div>
+
+        <button type="submit" class="btn-submit">Insérer</button>
+      </form>
+    </div>
   </div>
 </template>
 
 <script>
-// Importation de la fonction postData pour envoyer la requête HTTP
 import { postData } from '../utils/api';
 
 export default {
   data() {
     return {
-      email: '',       // Stocke l'email de l'utilisateur
-      password: ''     // Stocke le mot de passe de l'utilisateur
+      nomPlat: '',
+      prixUnitaire: '',
+      tempsCuisson: ''
     };
   },
   methods: {
-    /**
-     * Méthode pour gérer la soumission du formulaire d'inscription.
-     * - Envoie les informations de l'utilisateur à l'API.
-     * - Affiche la réponse du serveur dans la console.
-     */
     async handleSubmit() {
       try {
         const payload = {
-          email: this.email,
-          mdp: this.password,
-          role: "ADMIN" // Rôle par défaut pour l'utilisateur
+          nomPlat: this.nomPlat,
+          prixUnitaire: this.prixUnitaire,
+          tempsCuisson: this.tempsCuisson
         };
 
-        const response = await postData("users/create", payload);
+        const response = await postData("admin/plats/create", payload);
         console.log("Réponse du serveur :", response);
 
-        // Redirection après une inscription réussie (ajout potentiel)
-        if (response.success) {
-          this.$router.push({ name: 'LoginPage' }); // Redirection vers la connexion
-        }
+        this.nomPlat = '';
+        this.prixUnitaire = '';
+        this.tempsCuisson = '';
+
+        alert("Plat inséré avec succès !");
       } catch (error) {
-        console.error("Erreur lors de l'inscription :", error);
+        console.error("Erreur lors de l'insertion des données :", error);
+        alert("Une erreur est survenue, veuillez réessayer.");
       }
     }
   }
@@ -65,66 +63,78 @@ export default {
 </script>
 
 <style scoped>
-/* Conteneur principal */
-.inscription-container {
-  max-width: 400px; /* Largeur maximale du formulaire */
-  margin: 50px auto; /* Centrage vertical et horizontal */
-  padding: 20px; /* Espacement interne */
-  background-color: #f8f8f8; /* Couleur de fond */
-  border-radius: 10px; /* Coins arrondis */
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Ombre légère */
+.insert-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #4b6cb7, #182848);
+  font-family: Arial, sans-serif;
+}
+
+.insert-card {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 400px;
   text-align: center;
 }
 
-/* Titre */
 h1 {
-  font-size: 1.8rem;
+  font-size: 24px;
   color: #333;
   margin-bottom: 20px;
+  font-weight: bold;
 }
 
-/* Mise en page du formulaire */
-.inscription-form {
+.insert-form {
   display: flex;
   flex-direction: column;
-  gap: 15px; /* Espacement entre les champs */
+  gap: 20px;
 }
 
-/* Groupe d'entrée */
 .input-group {
   text-align: left;
 }
 
-/* Label des champs */
-.input-group label {
-  font-size: 1rem;
+label {
+  display: block;
+  font-size: 14px;
   color: #555;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
 }
 
-/* Style des champs de saisie */
-.input-group input {
+input {
   width: 100%;
   padding: 10px;
-  font-size: 1rem;
+  font-size: 16px;
   border: 1px solid #ccc;
-  border-radius: 5px;
+  border-radius: 6px;
+  box-sizing: border-box;
+  background: #f9f9f9;
+  outline: none;
+  transition: border-color 0.3s;
 }
 
-/* Bouton de soumission */
+input:focus {
+  border-color: #4b6cb7;
+}
+
 .btn-submit {
-  background-color: #28a745; /* Vert */
+  background-color: #4b6cb7;
   color: white;
-  padding: 10px;
+  padding: 12px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 16px;
+  font-weight: bold;
   transition: background-color 0.3s;
 }
 
-/* Effet au survol du bouton */
 .btn-submit:hover {
-  background-color: #218838;
+  background-color: #3b5998;
 }
 </style>
