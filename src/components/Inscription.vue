@@ -1,61 +1,56 @@
 <template>
-  <div class="insert-container">
-    <div class="insert-card">
-      <h1>INSERTION D'UN PLAT</h1>
-
-      <form @submit.prevent="handleSubmit" class="insert-form">
-        <div class="input-group">
-          <label for="nomPlat">Nom du plat :</label>
-          <input type="text" id="nomPlat" v-model="nomPlat" required>
-        </div>
-
-        <div class="input-group">
-          <label for="prixUnitaire">Prix (Ar) :</label>
-          <input type="number" id="prixUnitaire" v-model="prixUnitaire" required>
-        </div>
-
-        <div class="input-group">
-          <label for="tempsCuisson">Temps de cuisson :</label>
-          <input type="time" id="tempsCuisson" v-model="tempsCuisson" required>
-        </div>
-
-        <button type="submit" class="btn-submit">Insérer</button>
-      </form>
-    </div>
+  <div class="inscription-container">
+    <h1>PAGE D'INSCRIPTION</h1>
+    <!-- Formulaire d'inscription -->
+    <form @submit.prevent="handleSubmit" class="inscription-form">
+      <!-- Champ pour l'email -->
+      <div class="input-group">
+        <label for="email">Email :</label>
+        <input type="email" id="email" v-model="email" required>
+      </div>
+      <!-- Champ pour le mot de passe -->
+      <div class="input-group">
+        <label for="password">Mot de passe :</label>
+        <input type="password" id="password" v-model="password" required>
+      </div>
+      <!-- Bouton de soumission -->
+      <button type="submit" class="btn-submit">S'inscrire</button>
+    </form>
   </div>
 </template>
 
 <script>
+// Importation de la fonction postData pour envoyer la requête HTTP
 import { postData } from '../utils/api';
 
 export default {
   data() {
     return {
-      nomPlat: '',
-      prixUnitaire: '',
-      tempsCuisson: ''
+      email: '',       // Stocke l'email de l'utilisateur
+      password: ''     // Stocke le mot de passe de l'utilisateur
     };
   },
   methods: {
+    /**
+     * Méthode pour gérer la soumission du formulaire d'inscription.
+     * - Envoie les informations de l'utilisateur à l'API.
+     * - Affiche la réponse du serveur dans la console.
+     */
     async handleSubmit() {
       try {
         const payload = {
-          nomPlat: this.nomPlat,
-          prixUnitaire: this.prixUnitaire,
-          tempsCuisson: this.tempsCuisson
+          email: this.email,
+          mdp: this.password,
+          role: "ADMIN" // Rôle par défaut pour l'utilisateur
         };
-
-        const response = await postData("admin/plats/create", payload);
+        const response = await postData("users/create", payload);
         console.log("Réponse du serveur :", response);
-
-        this.nomPlat = '';
-        this.prixUnitaire = '';
-        this.tempsCuisson = '';
-
-        alert("Plat inséré avec succès !");
+        // Redirection après une inscription réussie (ajout potentiel)
+        if (response.success) {
+          this.$router.push({ name: 'LoginPage' }); // Redirection vers la connexion
+        }
       } catch (error) {
-        console.error("Erreur lors de l'insertion des données :", error);
-        alert("Une erreur est survenue, veuillez réessayer.");
+        console.error("Erreur lors de l'inscription :", error);
       }
     }
   }
@@ -63,7 +58,7 @@ export default {
 </script>
 
 <style scoped>
-.insert-container {
+.inscription-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -72,7 +67,7 @@ export default {
   font-family: Arial, sans-serif;
 }
 
-.insert-card {
+.inscription-form {
   background: white;
   border-radius: 12px;
   padding: 30px;
@@ -87,12 +82,6 @@ h1 {
   color: #333;
   margin-bottom: 20px;
   font-weight: bold;
-}
-
-.insert-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
 }
 
 .input-group {
