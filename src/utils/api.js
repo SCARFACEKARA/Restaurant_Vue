@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiBaseUrl = 'http://192.168.1.174:8000/api';
+const apiBaseUrl = 'https://restaurantapi-524bf01f495e.herokuapp.com/api';
 
 export const getData = async (endpoint) => {
   try {
