@@ -1,25 +1,30 @@
 <template>
-  <div class="insert-container">
-    <div class="insert-card">
-      <h1>INSERTION D'UN PLAT</h1>
+  <div class="container">
+    <h1>Insertion de plat</h1>
+    <div class="content-wrapper">
+      <!-- Conteneur pour l'image -->
+      <div class="image-container">
+        <img src="../assets/image/1x/Logo.png" alt="Image du plat" class="login-image" />
+      </div>
 
-      <form @submit.prevent="handleSubmit" class="insert-form">
+      <!-- Formulaire d'insertion -->
+      <form @submit.prevent="handleSubmit">
         <div class="input-group">
           <label for="nomPlat">Nom du plat :</label>
-          <input type="text" id="nomPlat" v-model="nomPlat" required placeholder="Entrez le nom du plat">
+          <input type="text" id="nomPlat" v-model="nomPlat" required placeholder="Entrez le nom du plat" />
         </div>
 
         <div class="input-group">
           <label for="prixUnitaire">Prix (Ar) :</label>
-          <input type="number" id="prixUnitaire" v-model="prixUnitaire" required placeholder="Entrez le prix">
+          <input type="number" id="prixUnitaire" v-model="prixUnitaire" required placeholder="Entrez le prix" />
         </div>
 
         <div class="input-group">
           <label for="tempsCuisson">Temps de cuisson :</label>
-          <input type="time" id="tempsCuisson" v-model="tempsCuisson" required>
+          <input type="time" id="tempsCuisson" v-model="tempsCuisson" required />
         </div>
 
-        <button type="submit" class="btn-submit">Insérer</button>
+        <button type="submit">Insérer</button>
       </form>
     </div>
   </div>
@@ -44,7 +49,7 @@ export default {
           prixUnitaire: this.prixUnitaire,
           tempsCuisson: this.tempsCuisson
         };
-        
+
         const response = await postData("admin/plats/create", payload);
         console.log("Réponse du serveur :", response);
 
@@ -63,80 +68,125 @@ export default {
 </script>
 
 <style scoped>
-.insert-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #4b6cb7, #182848);
+/* ==========================
+   Styles Généraux
+   ========================== */
+* {
+  box-sizing: border-box;
   font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-.insert-card {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  width: 90%;
-  max-width: 400px;
-  text-align: center;
+/* ==========================
+   Conteneur Principal
+   ========================== */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f9f9f9;
 }
 
+/* ==========================
+   Titre de la Page
+   ========================== */
 h1 {
-  font-size: 24px;
-  color: #333;
-  margin-bottom: 20px;
+  font-size: 50px;
+  color: #ff3574;
+  margin-bottom: 30px;
+  text-align: center;
   font-weight: bold;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+  font-family: 'Nudica', sans-serif;
 }
 
-.insert-form {
+/* ==========================
+   Conteneur pour l'image et le formulaire
+   ========================== */
+.content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================
+   Conteneur pour l'image
+   ========================== */
+.image-container {
+  flex: 1;
+  max-width: 400px;
+}
+
+.login-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+/* ==========================
+   Formulaire d'insertion
+   ========================== */
+form {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.input-group {
-  text-align: left;
+  max-width: 400px;
 }
 
 label {
-  display: block;
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 8px;
+  font-size: 20px;
+  color: #151514;
+  font-weight: 600;
 }
 
-input[type="text"],
-input[type="number"],
-input[type="time"] {
+input {
   width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  box-sizing: border-box;
-  background: #f9f9f9;
+  padding: 14px;
+  font-size: 18px;
+  border: 2px solid #ff3574;
+  border-radius: 10px;
+  background: #fff;
   outline: none;
-  transition: border-color 0.3s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 input:focus {
-  border-color: #4b6cb7;
+  border-color: #ff3574;
+  box-shadow: 0 4px 12px rgba(255, 53, 116, 0.3);
 }
 
-.btn-submit {
-  background-color: #4b6cb7;
-  color: white;
+button {
+  background-color: #ff3574;
+  color: #ffffff;
   padding: 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
+  font-size: 20px;
   font-weight: bold;
-  transition: background-color 0.3s;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
-.btn-submit:hover {
-  background-color: #3b5998;
+button:hover {
+  background-color: #ff9cbb;
+  transform: scale(1.02);
+}
+
+button:disabled {
+  background-color: #ff9cbb;
+  cursor: not-allowed;
 }
 </style>

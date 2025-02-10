@@ -1,10 +1,15 @@
 <template>
-  <div class="insert-container">
-    <div class="insert-card">
-      <h1>INSERTION INGREDIENT PLAT</h1>
+  <div class="container">
+    <h1>Insertion Ingrédient Plat</h1>
 
-      <form @submit.prevent="associerIngredientPlat" class="insert-form">
-        <!-- Sélection du plat -->
+    <div class="content-wrapper">
+      <!-- Image à gauche -->
+      <div class="image-container">
+        <img src="../assets/image/1x/Logo.png" alt="Image de connexion" class="login-image" />
+      </div>
+
+      <!-- Formulaire d'association d'ingrédient -->
+      <form @submit.prevent="associerIngredientPlat">
         <div class="input-group">
           <label for="plat">Plat :</label>
           <select id="plat" v-model="selectedPlat" required>
@@ -15,25 +20,36 @@
           </select>
         </div>
 
-        <!-- Sélection des ingrédients -->
         <div class="input-group">
           <label>Ingrédients :</label>
           <div class="checkbox-group">
-            <div v-for="ingredient in ingredients" :key="ingredient.id" class="checkbox-item">
-              <input
-                type="checkbox"
-                :id="'ingredient-' + ingredient.id"
-                :value="ingredient.id"
-                v-model="selectedIngredients"
-              />
-              <label :for="'ingredient-' + ingredient.id">{{ ingredient.nomIngredient }}</label>
+            <div class="checkbox-column">
+              <div v-for="ingredient in ingredients.slice(0, Math.ceil(ingredients.length / 2))" :key="ingredient.id" class="checkbox-item">
+                <input
+                  type="checkbox"
+                  :id="'ingredient-' + ingredient.id"
+                  :value="ingredient.id"
+                  v-model="selectedIngredients"
+                />
+                <label :for="'ingredient-' + ingredient.id" class="ingredient-label">{{ ingredient.nomIngredient }}</label>
+              </div>
+            </div>
+            <div class="checkbox-column">
+              <div v-for="ingredient in ingredients.slice(Math.ceil(ingredients.length / 2))" :key="ingredient.id" class="checkbox-item">
+                <input
+                  type="checkbox"
+                  :id="'ingredient-' + ingredient.id"
+                  :value="ingredient.id"
+                  v-model="selectedIngredients"
+                />
+                <label :for="'ingredient-' + ingredient.id" class="ingredient-label">{{ ingredient.nomIngredient }}</label>
+              </div>
             </div>
           </div>
         </div>
 
-        <button type="submit" class="btn-primary">Associer</button>
+        <button type="submit">Associer</button>
 
-        <!-- Affichage des messages d'erreur ou de succès -->
         <p v-if="message" :class="{'success-message': success, 'error-message': !success}">
           {{ message }}
         </p>
@@ -137,131 +153,138 @@ export default {
 </script>
 
 <style scoped>
-/* Conteneur principal */
-.insert-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #4b6cb7, #182848);
+/* Styles généraux */
+* {
+  box-sizing: border-box;
   font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-/* Carte centrale */
-.insert-card {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  text-align: center;
-  width: 90%;
-  max-width: 500px;
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f9f9f9;
 }
 
-/* Titre */
 h1 {
-  font-size: 1.8rem;
-  color: #333;
-  margin-bottom: 20px;
+  font-size: 50px;
+  color: #ff3574;
+  margin-bottom: 30px;
+  text-align: center;
   font-weight: bold;
 }
 
-/* Formulaire */
-.insert-form {
+.content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.image-container {
+  flex: 1;
+  max-width: 400px;
+}
+
+.login-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+form {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  text-align: left;
+  gap: 20px;
+  max-width: 400px;
 }
 
-/* Groupe d'entrée */
-.input-group label {
-  font-size: 1rem;
-  color: #555;
-  margin-bottom: 5px;
-  display: block;
+label {
+  font-size: 20px;
+  color: #151514;
+  font-weight: 600;
 }
 
-.input-group select,
-.input-group input {
-  width: 100%;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  transition: border-color 0.3s;
-}
-
-.input-group input:focus,
-.input-group select:focus {
-  border-color: #4b6cb7;
-  outline: none;
-}
-
-/* Groupe des checkboxes */
 .checkbox-group {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Largeur ajustée pour alignement */
-  gap: 15px; /* Espace entre les éléments */
-  background: #f4f4f4;
-  padding: 15px;
-  border-radius: 8px;
-  text-align: left; /* Aligne tout à gauche */
-}
-
-/* Élément individuel */
-.checkbox-item {
   display: flex;
-  align-items: center; /* Aligne verticalement la case et le texte */
-  gap: 10px; /* Espace entre la checkbox et le texte */
-  font-size: 0.9rem;
-  color: #555;
+  gap: 20px;
 }
 
-/* Style des cases à cocher */
+.checkbox-column {
+  flex: 1;
+}
+
+.checkbox-item {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
 .checkbox-item input[type="checkbox"] {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
+  margin-right: 10px;
+}
+select,
+input[type="checkbox"] {
+  padding: 14px;
+  font-size: 18px;
+  border: 2px solid #ff3574;
+  border-radius: 10px;
+  background: #fff;
+  outline: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-/* Style des labels */
-.checkbox-item label {
-  text-align: justify; /* Justifie le texte */
-  margin: 0;
-  cursor: pointer; /* Change le curseur pour indiquer qu'on peut cliquer */
-  flex: 1; /* Prend tout l'espace disponible */
-  line-height: 1.4; /* Améliore la lisibilité du texte */
+select:focus,
+input[type="checkbox"]:focus {
+  border-color: #ff3574;
+  box-shadow: 0 4px 12px rgba(255, 53, 116, 0.3);
+}
+.ingredient-label {
+  font-weight: normal;
 }
 
-/* Bouton */
-.btn-primary {
-  background-color: #28a745;
-  color: white;
-  padding: 12px 20px;
+button {
+  background-color: #ff3574;
+  color: #ffffff;
+  padding: 12px;
+  font-size: 20px;
+  font-weight: bold;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
-.btn-primary:hover {
-  background-color: #218838;
-  transform: scale(1.05);
+button:hover {
+  background-color: #ff9cbb;
+  transform: scale(1.02);
 }
 
-/* Messages */
+button:disabled {
+  background-color: #ff9cbb;
+  cursor: not-allowed;
+}
+
 .success-message {
   color: green;
   font-weight: bold;
-  margin-top: 15px;
 }
 
 .error-message {
   color: red;
   font-weight: bold;
-  margin-top: 15px;
 }
 </style>

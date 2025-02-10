@@ -1,26 +1,30 @@
 <template>
   <!-- Conteneur principal pour l'insertion d'un ingrédient -->
-  <div class="insert-container">
-    <div class="insert-card">
-      <h1>INSERTION D'UN INGREDIENT</h1>
+  <div class="container">
+    <h1>Insertion d'un ingrédient</h1>
+
+    <div class="content-wrapper">
+      <!-- Image à gauche -->
+      <div class="image-container">
+        <img src="../assets/image/1x/Logo.png" alt="Image de connexion" class="login-image" />
+      </div>
 
       <!-- Formulaire d'insertion -->
-      <form @submit.prevent="handleSubmit" class="insert-form">
-
+      <form @submit.prevent="handleSubmit">
         <!-- Champ pour le nom de l'ingrédient -->
         <div class="input-group">
           <label for="nomIngredient">Nom :</label>
-          <input type="text" id="nomIngredient" v-model="nomIngredient" required />
+          <input type="text" id="nomIngredient" v-model="nomIngredient" required placeholder="Entrez le nom de l'ingrédient" />
         </div>
 
         <!-- Champ pour le nom de l'image associée -->
         <div class="input-group">
-          <label for="nomImage">Nom de l'Image :</label>
-          <input type="text" id="nomImage" v-model="nomImage" required />
+          <label for="nomImage">Nom de l'image :</label>
+          <input type="text" id="nomImage" v-model="nomImage" required placeholder="Entrez le nom de l'image" />
         </div>
 
         <!-- Bouton de soumission -->
-        <button type="submit" class="btn-primary">Insérer</button>
+        <button type="submit">Insérer</button>
       </form>
     </div>
   </div>
@@ -38,29 +42,19 @@ export default {
     };
   },
   methods: {
-    /**
-     * Méthode pour gérer la soumission du formulaire.
-     * - Envoie les informations de l'ingrédient à l'API.
-     * - Vide les champs après une insertion réussie.
-     * - Affiche la réponse du serveur dans la console.
-     */
     async handleSubmit() {
       try {
-        // Préparation des données à envoyer
         const payload = {
-          nomIngredient: this.nomIngredient, // Nom de l'ingrédient
-          nomImage: this.nomImage, // Nom de l'image associée
+          nomIngredient: this.nomIngredient,
+          nomImage: this.nomImage,
         };
 
-        // Envoi des données à l'API
         const response = await postData("admin/ingredients/create", payload);
         console.log("Réponse du serveur :", response);
 
-        // Réinitialisation des champs après succès
         this.nomIngredient = "";
         this.nomImage = "";
       } catch (error) {
-        // Gestion des erreurs
         console.error("Erreur lors de l'insertion des données :", error);
       }
     },
@@ -69,80 +63,134 @@ export default {
 </script>
 
 <style scoped>
-/* Conteneur principal */
-.insert-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(135deg, #4b6cb7, #182848);
+/* ==========================
+   Styles Généraux
+   ========================== */
+* {
+  box-sizing: border-box;
   font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
-/* Carte centrale */
-.insert-card {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+/* ==========================
+   Conteneur Principal
+   ========================== */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+/* ==========================
+   Titre de la Page
+   ========================== */
+h1 {
+  font-size: 50px;
+  color: #ff3574;
+  margin-bottom: 30px;
   text-align: center;
-  width: 90%;
+  font-weight: bold;
+  text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+  font-family: 'Nudica', sans-serif;
+}
+
+/* ==========================
+   Conteneur pour l'image et le formulaire
+   ========================== */
+.content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 50px;
+  width: 100%;
+  max-width: 900px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================
+   Conteneur pour l'image
+   ========================== */
+.image-container {
+  flex: 1;
   max-width: 400px;
 }
 
-/* Titre principal */
-h1 {
-  font-size: 1.8rem;
-  color: #333;
-  margin-bottom: 20px;
-  font-weight: bold;
+.login-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
 }
 
-/* Formulaire */
-.insert-form {
+/* ==========================
+   Formulaire
+   ========================== */
+form {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  text-align: left;
+  gap: 20px;
+  max-width: 400px;
 }
 
-/* Groupe d'entrée */
-.input-group label {
-  font-size: 1rem;
-  color: #555;
-  margin-bottom: 5px;
-  display: block;
+/* ==========================
+   Labels
+   ========================== */
+label {
+  font-size: 20px;
+  color: #151514;
+  font-weight: 600;
 }
 
-.input-group input {
+/* ==========================
+   Champs de Saisie
+   ========================== */
+input {
   width: 100%;
-  padding: 12px;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  transition: border-color 0.3s;
-}
-
-.input-group input:focus {
-  border-color: #4b6cb7;
+  padding: 14px;
+  font-size: 18px;
+  border: 2px solid #ff3574;
+  border-radius: 10px;
+  background: #fff;
   outline: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: border-color 0.3s, box-shadow 0.3s;
 }
 
-/* Bouton de soumission */
-.btn-primary {
-  background-color: #28a745;
-  color: white;
-  padding: 12px 20px;
+input:focus {
+  border-color: #ff3574;
+  box-shadow: 0 4px 12px rgba(255, 53, 116, 0.3);
+}
+
+/* ==========================
+   Boutons
+   ========================== */
+button {
+  background-color: #ff3574;
+  color: #ffffff;
+  padding: 12px;
+  font-size: 20px;
+  font-weight: bold;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: bold;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
-.btn-primary:hover {
-  background-color: #218838;
-  transform: scale(1.05);
+button:hover {
+  background-color: #ff9cbb;
+  transform: scale(1.02);
+}
+
+button:disabled {
+  background-color: #ff9cbb;
+  cursor: not-allowed;
 }
 </style>
