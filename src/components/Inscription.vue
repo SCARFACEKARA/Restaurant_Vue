@@ -29,6 +29,7 @@
 <script>
 // Importation de la fonction postData pour envoyer la requête HTTP
 import { postData } from '../utils/api';
+// import { signUp } from '../scripts/auth';
 
 export default {
   data() {
@@ -44,7 +45,7 @@ export default {
      * - Affiche la réponse du serveur dans la console.
      */
     async handleSubmit() {
-      try {
+      // try {
         const payload = {
           email: this.email,
           mdp: this.password,
@@ -53,12 +54,14 @@ export default {
         const response = await postData('users/create', payload);
         console.log('Réponse du serveur :', response);
         // Redirection après une inscription réussie (ajout potentiel)
-        if (response.success) {
-          this.$router.push({ name: 'LoginPage' }); // Redirection vers la connexion
+        if (response.email) {
+          this.$router.push({ name: 'AdminPage' }); // Redirection vers la connexion
+        }else{
+          console.log("Erreur lors de l'inscription");
         }
-      } catch (error) {
-        console.error("Erreur lors de l'inscription :", error);
-      }
+      // } catch (error) {
+      //   console.error("Erreur lors de l'inscription :", error);
+      // }
     },
   },
 };
