@@ -3,7 +3,7 @@ import Connexion from '../components/Connexion.vue';
 import Inscription from '../components/Inscription.vue';
 import AdminPage from '../components/AdminPage.vue';
 import Stock from '../components/Stock.vue';
-import insertion from '../components/insertion.vue';
+import insertion from '../components/Insertion.vue';
 import InsertPlat from '../components/InsertPlat.vue';
 import InsertIngredient from '../components/InsertIngredient.vue';
 import InsertIngredientPlat from '../components/InsertIngredientPlat.vue';
